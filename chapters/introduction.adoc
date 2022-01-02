@@ -1,0 +1,32 @@
+include::chapter-base.adoc[]
+== Introduction
+
+Le succès de Java dans le monde de l’entreprise est lié à plusieurs caractéristiques :
+
+* Simplicité
+* Approche orienté objet
+* Forte rétro-compatibilité
+* Ouverture
+* Rapidité d’exécution (après le temps de chauffe)
+
+Ce qui est en fait un langage de choix aujourd’hui est aussi lié au riche écosystème qui s’est développé sur ces bases.
+
+Dans cet écosystème, on retrouve notamment des outils :
+
+* Construction de projet (Maven, Gradle, etc.)
+* IDE (IntelliJ, Eclipse, VSCode, etc.)
+* Profiling (JProfiler, Yourkit, etc.)
+* Tracing / APM (Jaeger, Datadog, New Relic, AppDynamics, etc.)
+
+Mais également un large choix de frameworks et libraries :
+
+* DI et [underline]#intégrations# (Spring, Quarkus, Micronaut, etc.)
+* ORM (Hibernate, jOOQ, etc.)
+* Logs (SLF4J, Logback, Log4J, JUL, etc.)
+* Tests (JUnit, AssertJ, Mockito, Testcontainers etc.)
+
+Considérant tous ces frameworks et outils à disposition, la qualité logicielle vient de
+
+* Comment sont [underline]#comprises# et agencées ces briques existantes
+* Comment elles sont configurées pour permettre une investigation à postériori (troubleshooting)
+* Quels indicateurs sont suivis en production

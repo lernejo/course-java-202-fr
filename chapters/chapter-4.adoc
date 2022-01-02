@@ -1,0 +1,151 @@
+include::chapter-base.adoc[]
+== IoC, DI & AOP
+
+=== IoC - Inversion de Contrôle
+
+L’inversion de contrôle est le fait de déléguer l’ordonnancement d’une application à un _framework_.
+
+L’idée générale est de créer de petites briques indépendantes et de laisser le _framework_ les assembler et les appeler.
+
+D’une certaine manière, ce n’est plus le code du développeur de l’application qui dicte la façon dont sont instanciées les classes et dont sont déclenchées les fonctionnalités.
+
+En pratique, rien n’est magique, et les frameworks qui réalisent cette inversion de contrôle fonctionnent sur la base de conventions et de configurations, pour que le comportement de l’application soit déterministe et configurable.
+
+=== DI - Injection de dépendance
+
+L’injection de dépendance est un mécanisme qui permet à un framework de construire et d’initialiser des objets dépendants d’autres objets.
+
+Il s’agit de décrire [underline]#suffisament# d’informations à propos des paramètres qui sont nécessaires au bon fonctionnement d’un objet et le framework pourra créer l’instance en question.
+
+La manière la plus élégante est au travers d’un constructeur assignant des champs `private` et `final`.
+
+Par exemple en utilisant Quarkus-Arc :
+
+[source,java]
+----
+@QuarkusMain
+public class Main {
+
+    public static void main(String... args) {
+        Quarkus.run(ExtensionApp.class, args); // <1>
+    }
+}
+----
+<1> À partir d’ici, on délègue au framework l’instanciation et l’exécution du code de l’application.
+C’est ici que le contrôle sur l’exécution s’inverse.
+
+[source,java]
+----
+public class ExtensionApp implements QuarkusApplication {
+
+    private final ExtensionService extensionService;
+
+    public ExtensionApp(@RestClient ExtensionService extensionService) { // <1>
+        this.extensionService = extensionService;
+    }
+
+    @Override
+    public int run(String... args) {
+        extensionService.getExtensionsById(args[0]).forEach(System.out::println); // <2>
+        Quarkus.waitForExit();
+        return 0;
+    }
+}
+----
+<1> Quarkus-Arc va créer une instance de cette classe et y _injecter_ (comprendre, passer en paramètre), une instance de type `ExtensionService` avec le _qualifier_ `@RestClient`.
+Les _qualifiers_ sont un moyen de lever l’ambiguité quand il existe plusieurs implémentations d’un même type, ou quand on veut expliciter le rôle d’un composant.
+Ici on déclare explicitement que le rôle de l’objet injecté est d’être un client HTTP.
+<2> Cette méthode est appelée par le _framework_.
+Si une méthode d’un objet peut être appelée, c’est que cet objet a été instancié (et donc injecté).
+Cette méthode ne fait qu’afficher dans la sortie standard le retour de la méthode `getExtensionsById`.
+
+[source,java]
+----
+@RegisterRestClient(baseUri = "https://stage.code.quarkus.io/api") // <1>
+public interface ExtensionService {
+
+    @GET
+    @Path("/extensions")
+    Set<Extension> getExtensionsById(@QueryParam("id") String id);
+
+    record Extension (
+        String id,
+        String name,
+        String shortName,
+        List<String> keywords
+    ){}
+}
+----
+<1> Annotation qui va déclencher la création d’un _proxy dynamique_, c’est-à-dire une implémentation de cette interface.
+La création de ce proxy est gérée par la librairie *quarkus-rest-client*.
+Il va intercepter les appels aux méthodes annotées (ou méta-annotées) avec `@HttpMethod` et se servir des autres annotations pour récupérer les informations nécessaires à créer les requêtes HTTP correspondantes.
+Ici la requête sera `GET https://stage.code.quarkus.io/api/extensions?id={id}`
+Le corps de la réponse sera ensuite _désérialisé_ grâce à la librairie *quarkus-rest-client-jackson*.
+
+=== AOP
+
+La Programmation Orientée Aspect (AOP en anglais), est le fait de rajouter du comportement autour de méthodes existantes sans les modifier.
+
+Le fait de rajouter ces comportements que ce soit à la compilation ou au démarrage de l’application est appelé tissage (weaving).
+
+L’intérêt de l’AOP est de factoriser du code générique, comme :
+
+* La collecte de statistiques
+* La génération de log
+* L’établissement d’une _transaction_
+* Le re-essai en cas d’erreur
+* Etc.
+
+Exemple de proxy dynamique simple :
+
+[source,java]
+----
+public class TimeLoggerProxy {
+    private static final Logger logger = LoggerFactory.getLogger(TimeLoggerProxy.class);
+
+    public static <T> T create(T object, Class<T> objectInterface) {
+        String interfaceName = objectInterface.getSimpleName();
+        InvocationHandler invocationHandler = (proxy, method, args) -> {
+            long startTime = System.currentTimeMillis();
+            try {
+                return method.invoke(object, args);
+            } finally {
+                long endTime = System.currentTimeMillis();
+                logger.debug(interfaceName + "#" + method.getName() + " took " + (endTime - startTime) + " ms");
+            }
+        };
+        return (T) Proxy.newProxyInstance(TimeLoggerProxy.class.getClassLoader(), new Class<?>[] { objectInterface }, invocationHandler);
+    }
+}
+----
+
+Ici une interface est nécessaire car la technologie de _proxy dynamique_ fournie par la JDK ne fonctionne pas sur les classes.
+
+Il existe cependant plusieurs librairies qui permettent de dépasser cette limitation (Byte Buddy, CGlib, Javassist, etc.).
+
+Voici comment peut être décrit ce comportement avec Spring-AOP :
+
+[source,java]
+----
+
+@Aspect
+public class TimeLoggerAspect {
+
+    private static final Logger logger = LoggerFactory.getLogger(TimeLoggerProxy.class);
+
+    @Around("@annotation(fr.lernejo.LogTime)") // <1>
+    public Object doBasicProfiling(ProceedingJoinPoint pjp) throws Throwable {
+        long startTime = System.currentTimeMillis();
+        Signature signature = pjp.getSignature();
+        String className = signature.getDeclaringType().getSimpleName();
+        String methodName = signature.getName();
+        try {
+            return pjp.proceed();
+        } finally {
+            long endTime = System.currentTimeMillis();
+            logger.debug(className + "#" + methodName + " took " + (endTime - startTime) + " ms");
+        }
+    }
+}
+----
+<1> Cet aspect sera appliqué sur toutes les méthodes annotées avec `@LogTime`

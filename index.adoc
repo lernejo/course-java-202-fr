@@ -1,0 +1,66 @@
+= Java 202 - Librairies & Frameworks
+Loïc Ledoyen <ledoyen.loic@gmail.com>
+:reproducible:
+:toc-title: Java 202
+:listing-caption: Listing
+:tip-caption: Conseil
+:caution-caption: ⚠️
+:source-highlighter: rouge
+:hardbreaks-option:
+:toc: left
+:title-page:
+
+:course-root:
+
+ifndef::ci[]
+:imagesdir: ./images
+endif::[]
+
+:title-logo-image: image::logo.png[top=25%, align=center, pdfwidth=0.5in]
+
+<<<
+
+include::chapters/introduction.adoc[]
+
+:sectnums:
+
+<<<
+
+// Rappels sur les outils
+:imagesdir: https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/images/
+include::https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/chapters/chapter-1.adoc[]
+:imagesdir: ./images
+
+<<<
+
+// Fonctionnement des frameworks
+include::chapters/chapter-2.adoc[]
+
+<<<
+
+// IoC, DI & AOP
+include::chapters/chapter-4.adoc[]
+
+<<<
+
+// Gestion des logs
+:imagesdir: https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/images/
+include::https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/chapters/chapter-7.adoc[]
+:imagesdir: ./images
+
+<<<
+
+// Intégrations
+include::chapters/chapter-5.adoc[]
+
+<<<
+
+// API design
+include::chapters/chapter-6.adoc[]
+
+<<<
+
+// Notions sur la Production
+include::chapters/chapter-7.adoc[]
+
+<<<

@@ -1,0 +1,168 @@
+include::chapter-base.adoc[]
+== Fonctionnement des frameworks
+
+Le principe des frameworks est de proposer des fonctionnalités sur un code arbitraire en l’analysant.
+
+Ils peuvent aussi bien se baser sur
+
+* Des conventions implicites, comme l’existence sur un objet d’un constructeur avec des paramètres non-ambigües
+* Une déclaration explicite en utilisant l’API fournie par ceux-ci (annotations, interfaces, fichiers de configuration)
+
+Cette analyse d’un code non connu à l’avance peut se réaliser soit
+
+* Au moment de la compilation, dans ce cas la phase de compilation est plus longue
+* Au démarrage de l’application, dans ce cas le démarrage de l’application est plus long
+
+=== Compile-time
+
+La brique de base pour générer du code au moment de la compilation est APT (Annotation Processing Tool), une API pour réaliser des plugins de compilation apparue en Java 6.
+Celle-ci permet d’afficher des erreurs au moment de la compilation, mais aussi de générer du code.
+
+Par exemple https://github.com/Randgalt/record-builder[record-builder] est un plugin de compilation qui permet de générer des classes "builder" des `record` annotés avec `@RecordBuilder`.
+
+APT a cependant plusieurs contraintes, notamment le fait
+
+* De ne travailler que sur du code source (donc pas sur des dépendances)
+* Que le déclenchement des plugins se fait uniquement sur la base d’annotations.
+
+Ainsi, il est impossible avec APT de déclencher un comportement sur un code qui n’est pas annoté ou qui est déjà compilé.
+
+Il existe néanmoins d’autres solutions, comme le framework *Quarkus* qui a choisi d’ajouter une phase de transformation (*Augment*) _après_ la construction des binaires par l’intermédiaire d’un plugin Maven ou Gradle.
+
+L’intérêt de cette stratégie _compile-time_ est d’avoir un binaire
+
+* Potentiellement plus petit (le code des plugins de compilation n’y est pas présent)
+* Potentiellement moins gourmand en mémoire, si le but est de remplacer l’AOP runtime (Aspect Oriented Programming)
+* Plus rapide au démarrage
+
+Dans le cas de *Quarkus* et *Micronaut*, l’intérêt est également de produire un binaire pouvant être (re-)compilé vers du code machine beaucoup plus rapide et petit, mais ne profitant pas du JIT (Just-In-Time Compiler) grâce au compilateur `native-image` AOT (Ahead-Of-Time) de GraalVM.
+
+==== Anatomie d’un plugin de compilation
+
+Un plugin de compilation Java est un service au sens de la *Service Provider Interface*.
+
+Il faut donc déclarer les classes implémentant l’interface `javax.annotation.processing.Processor` dans le fichier `META-INF/services/javax.annotation.processing.Processor`.
+
+Nous allons voir un cas très simple d’un plugin affichant une erreur de compilation si un objet annoté avec `@Sether` contient des méthodes _setters_, au sens de la spécification https://download.oracle.com/otndocs/jcp/7224-javabeans-1.01-fr-spec-oth-JSpec/[Java Beans].
+
+Dans notre cas, le fichier `META-INF/services/javax.annotation.processing.Processor` ne contiendra qu’une ligne :
+
+[source]
+----
+fr.lernejo.sether.SetherProcessor
+
+----
+
+Considérant l’annotation suivante :
+
+[source, java]
+----
+@Target(ElementType.TYPE) // <1>
+@Retention(RetentionPolicy.SOURCE) // <2>
+public @interface Sether {
+}
+
+----
+<1> Cette annotation ne peut être placée que sur un type (Class, Interface, etc.)
+<2> Cette annotation ne sera pas gardée à la compilation, elle ne pourra pas être découverte au _runtime_
+
+Voici le code du `Processor` :
+
+[source, java]
+----
+@SupportedSourceVersion(SourceVersion.RELEASE_17) // <1>
+@SupportedAnnotationTypes({
+    "fr.lernejo.sether.Sether" // <2>
+})
+public class SetherProcessor extends AbstractProcessor {
+
+    private Messager messager; // <3>
+
+    @Override
+    public synchronized void init(ProcessingEnvironment env) {
+        messager = env.getMessager();
+    }
+
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        for (TypeElement annotation : annotations) { // <4>
+            Set<? extends Element> annotatedElements = roundEnv.getElementsAnnotatedWith(annotation); // <5>
+            for (Element e : annotatedElements) {
+                for (Element ee : e.getEnclosedElements()) { // <6>
+                    if (ee.getKind() == ElementKind.METHOD && ee.getSimpleName().toString().startsWith("set")) {
+                        messager.printMessage(Diagnostic.Kind.ERROR, "Setters are evil", ee); // <7>
+                    }
+                }
+            }
+        }
+        return true;
+    }
+}
+
+----
+<1> Explicite que ce plugin est compatible jusqu’à la version 17 de Java
+<2> Le plugin sera déclenché quand l’annotation `@Sether` sera présente sur un élément
+<3> Cet objet dont une référence est récupérée à l’initialisation permet d’envoyer des messages au compilateur. La compilation retournera un code d’erreur si au moins un message de type `ERROR` est envoyé.
+<4> Boucle sur les annotations pouvant déclencher le plugin, ici une fois.
+<5> Récupération de tous les éléments annotés avec `@Sether`, ici un ensemble de classe
+<6> Boucle sur les éléments contenus dans une classe : champs, méthodes, etc.
+<7> Envoi du message d’erreur au compilateur, associé à l’élément `ee` posant problème, ainsi le compilateur pourra afficher des éléments de contexte comme le fichier incriminé et la ligne de l’erreur
+
+Un tel plugin ajouté comme dépendance `provided`
+
+[source, xml]
+----
+<dependency>
+    <groupId>fr.lernejo</groupId>
+    <artifactId>sether</artifactId>
+    <version>${sether.version}</version>
+    <scope>provided</scope>
+</dependency>
+----
+
+Provoquera des erreurs de compilation si les conditions sont réunies :
+[source]
+----
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project sample: Compilation failure: Compilation failure:
+[ERROR] ~/workspace/sample/src/main/java/fr/lernejo/sample/Machin.java:[12,17] Setters are evil
+[ERROR] ~/workspace/sample/src/main/java/fr/lernejo/sample/Machin.java:[16,17] Setters are evil
+----
+
+De manière similaire à `Messager`, `Filer` permet de créer des fichiers qui seront par la suite compilés.
+
+Écrire du code source _à la main_ peut être verbeux et compliqué, c’est pourquoi il est préférable d’utiliser des bibliothèques pour manipuler ces concepts à plus haut niveau, comme ce que propose https://github.com/square/javapoet[JavaPoet].
+
+=== Runtime
+
+Au _runtime_, c’est-à-dire après que l’application ait démarrée, l’analyse du code se fait par :
+
+* _Class scanning_, en regardant chaque élément du _classpath_ (archive jar, répertoire) et en allant _lire_ le _bytecode_ qu’ils contiennent
+* Les APIs `java.lang.reflect` ou `java.lang.invoke`, permettant sur un objet `Class` arbitraire de récupérer et utiliser ses champs, méthodes, constructeurs, etc.
+
+Les frameworks fortement modulaires comme *Spring* ont historiquement choisi cette approche.
+
+Cela permet au développeur de configurer dynamiquement son application, et d’y ajouter des fonctionnalités par l’intermédiaire des nombreux points d’extensions fournis.
+
+Cela permet également aux frameworks comme *Spring-Boot* de déclencher des comportements en fonction des éléments présents dans le _classpath_.
+
+Par exemple, si *Spring-Boot* détecte la bibliothèque *spring-rabbit*, le framework va configurer un certain nombre de _beans_ permettant notamment d’envoyer des messages au broker RabbitMQ.
+Ces beans seront ensuite disponibles pour injection dans le code applicatif.
+
+Par exemple le code ci-dessous permet l’envoi d’un tel message :
+
+[source, java]
+----
+@SpringBootApplication
+public class Launcher {
+
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Launcher.class); // <1>
+        RabbitTemplate template = context.getBean(RabbitTemplate.class); // <2>
+
+        template.convertAndSend("", "hello_queue", "Hello Rabbit !");
+    }
+}
+----
+<1> Démarre le contexte de Spring, entrainant le _class scanning_ et la création des objets déclarés comme beans grâce à l’API du framework
+<2> L’objet de type `RabbitTemplate` récupéré ici a été initialisé par le framework et communique par défaut avec l’instance locale sur le port par défaut `localhost:5672`. Pour pointer sur une instance différente, il suffit de re-définir la propriété `spring.rabbitmq.addresses`.
+

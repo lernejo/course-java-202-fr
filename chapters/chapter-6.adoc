@@ -1,0 +1,4 @@
+include::chapter-base.adoc[]
+== API design
+
+include::https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/chapters/fragments/api.adoc[]

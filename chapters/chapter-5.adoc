@@ -1,0 +1,110 @@
+include::chapter-base.adoc[]
+== Intégrations
+
+L’écosystème Java s’est grandement développé au fil des années et il est aujourd’hui d’une grande richesse.
+
+Pour chaque technologie ou protocole, il existe presque certainement une librairie, ou plusieurs
+
+* Sql : jooq, hibernate, spring-data, etc.
+* No Sql : clients pour couch, cassandra, redis, hbase, neo4j, etc.
+* Brokers : clients pour Kafka, Rabbit, etc.
+* Serveurs HTTP : Tomcat, Jetty, Undertow, etc.
+* Clients HTTP : JDK, Retrofit, Apache http-client, Spring `RestTemplate`, etc.
+* Serialization : Jackson, SnakeYAML, JaxB, etc.
+* Moteurs d’indexation : clients pour ElasticSearch, OpenSearch, SolR, etc.
+* EIP : Spring-Integration, Apache Camel, etc.
+* Etc.
+
+Faire un choix sur une technologie d’intégration ou une autre peut être complexe et engageant.
+
+Par exemple, décider d’utiliser Apache Camel pour profiter des nombreux connecteurs de cet écosystème enfermera dans un certain périmètre.
+
+A contrario, rechercher la simplicité en intégrant des bibliothèques minimalistes nécessitera peut-être plus de code, mais laissera le champ libre pour les fonctionnalités à venir.
+
+=== Un mot sur JDBC
+
+**J**ava **D**ata**B**ase **C**onnectivity est l’API standard synchrone pour s’interfacer avec une base de donnée relationnelle (SQL).
+
+En tant qu’API, elle fournit l’abstraction `java.sql.Driver` qui est implémentée par les différents clients existants (Oracle, PostgreSQL, MariaDB, etc.).
+
+Cela permet d’utiliser le même code Java, quelle que soit la base (SQL) utilisée.
+
+CAUTION: Attention cependant, chaque base a son lot de spécificités en plus de la syntaxe SQL-92 et si elles sont utilisées, le code (SQL) n’est plus portable.
+
+Exemple de code utilisant l’API JDBC :
+
+[source,java]
+----
+
+class JdbcDemo {
+
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        Class.forName("postgresql.Driver"); // <1>
+        String dbUrl = "jdbc:postgresql://localhost:5432";
+
+        try (Connection connection = DriverManager.getConnection(dbUrl, "postgres", "example"); // <2>
+             PreparedStatement stmt = connection.prepareStatement("SELECT name, age FROM person WHERE age > ?")) { // <3>
+
+            stmt.setInt(1, 28); // <4>
+
+            ResultSet rs = stmt.executeQuery(); // <5>
+
+            while (rs.next()) { // <6>
+                System.out.print(rs.getString(1) + " :  " + rs.getInt(2));
+            }
+        }
+    }
+}
+
+----
+<1> Charge le Driver qui va s’enregistrer auprès du `DriverManager`, si la classe `postgresql.Driver` n’est pas présente dans le _classpath_, une exception sera levée
+<2> Ouverture d’une connection vers la base de donnée (en utilisant _login_ et _password_). Avec cette syntaxe, appelée _try-with-resources_, la connection sera automatiquement fermée, demande pour le `PreparedStatement` à la ligne d’après
+<3> Création d’un `PreparedStatement` qui permet de variabiliser la requête SQL avec des paramètres qui seront échappés par l’API (et évitera la fameuse vulnérabilité d’injection SQL). Par ailleurs cette syntaxe va jusqu’à la base de données qui pourra réaliser des optimisations qui profiteront aux executions ultérieures, même avec des paramètres différents.
+<4> Définition de la valeur du premier (et seul) paramètre
+<5> Execution de la requête et récupération du résultat
+<6> Le résultat étant conceptuellement un `Iterator`, on pourra lire la prochaine ligne tant que la méthode `next()` renvoie `true`
+
+L’API JDBC est pratique car elle abstrait du type de base utilisé et permet d’avoir un code portable (à la syntaxe SQL près).
+
+Cependant ce code est nécessaire à chaque requête, et il peut y avoir beaucoup de duplication si on utilise uniquement cette API.
+
+*Spring* (entre autres) fournit des utilitaires au-dessus de l’API JDBC qui permettent d’avoir un code d’appel plus concis et de réaliser un mapping sommaire vers des objets Java.
+
+[source,java]
+----
+
+class JdbcTemplateDemo {
+
+    public static void main(String[] args) {
+        NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(buildDataSource()); // <1>
+
+        List<Person> persons = jdbcTemplate.query(
+            "SELECT name, age FROM person WHERE age > :age", // <2>
+            Map.of("age", 28),
+            (rs, rowNum) -> new Person(rs.getString("name"), rs.getInt("age")) // <3>
+        );
+
+        persons.forEach(System.out::println);
+    }
+
+    record Person(String name, int age) {
+    }
+
+    private static DataSource buildDataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("postgresql.Driver");
+        dataSource.setUrl("jdbc:postgresql://localhost:5432");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("example");
+
+        return dataSource;
+    }
+}
+
+----
+<1> Dans une application plus complexe, cette même instance serait _injectée_ dans le code des _Repositories_ la nécessitant
+<2> Ici les paramètres sont nommés pour éviter le https://connascence.io/position.html[couplage de position]
+<3> Il est possible de passer une fonction qui transforme une ligne en objet et celle-ci sera appelée en boucle pour construire la liste résultante
+
+
+JDBC est la brique de base sur laquelle sont construits les **O**bject **R**elational **M**apper tels qu’Hibernate ou jOOQ.

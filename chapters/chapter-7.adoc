@@ -1,0 +1,50 @@
+include::chapter-base.adoc[]
+== Notions sur la Production
+
+=== 12 factors App
+
+Il s’agit de 12 principes réalisés comme retour d’expérience par les équipes de *Heroku*, une plateforme de déploiement "dans le cloud".
+
+La référence complète peut être trouvée ici : https://12factor.net/
+
+Ces douze principes sont des bonnes pratiques, applicables du domaine du développeur à celui de l’administrateur système.
+
+Leur mise en place permet de simplifier la gestion de l’infrastructure.
+
+=== A propos du déploiement (en Production)
+
+En 2019, l’équipe DORA (**D**ev**O**ps **R**esearch and **A**ssessment) de *Google* produit un rapport d’analyse de 6 ans sur le fonctionnement des équipes informatiques dans de nombreuses entreprises.
+
+Ce rapport établit 4 métriques qui permettent de mesurer la performance des équipes de développement :
+
+* La fréquence de déploiement en _production_
+* Le délai entre un commit et le déploiement en _production_ de celui-ci
+* Le pourcentage des déploiements entrainant un problème en _production_
+* Temps nécessaire pour restaurer le service après un problème en _production_
+
+Source : https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance
+
+Ces conclusions sont assez logiques quand on regarde ça sous l’angle du [underline]#risque#.
+
+Changer quelque chose dans un système informatique inclus toujours un risque de problème.
+
+Plus le changement est gros, plus le risque qu’il y ai un problème est élevé car le volume de code changé est plus important.
+
+Ainsi, faire des versions (et des déploiements) régulièrement diminue ce risque, car chaque changement est plus petit.
+
+Par ailleurs, la maturité et la technologie qui permettent de déployer régulièrement sont aussi au service de la correction rapide d’une anomalie en _production_.
+
+Concrètement atteindre ces objectifs, c’est mettre en place une industrialisation des processus, par l’intermédiaire des outils tels que :
+
+* SCM : gestionnaire de code source (Git, SVN, CVS, etc.)
+* CI/CD : intégration et déploiement continu (Jenkins, GitLab CI, GitHub Actions, Circle CI, etc.)
+* Supervision : collecte et suivi des logs et métriques applicatives (ELK, Micrometer, Prometheus, Warp10, Grafana, Datadog, etc.)
+* Etc.
+
+// Centralisation des logs
+:imagesdir: https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/images/
+include::https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/chapters/chapter-8.adoc[]
+
+=== Supervision
+include::https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/chapters/fragments/supervision.adoc[]
+:imagesdir: ./images
