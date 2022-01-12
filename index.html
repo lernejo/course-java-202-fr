@@ -684,14 +684,25 @@ pre.rouge {
 <li><a href="#_heap_dump">3.3. Heap Dump</a></li>
 </ul>
 </li>
-<li><a href="#_intégrations">4. Intégrations</a></li>
-<li><a href="#_api_design">5. API design</a></li>
-<li><a href="#_key_takeaway_points_on_production">6. Key takeaway points on Production</a>
+<li><a href="#_di_aop">4. DI &amp; AOP</a></li>
+<li><a href="#_intégrations">5. Intégrations</a>
 <ul class="sectlevel2">
-<li><a href="#_12_factors">6.1. 12 factors</a></li>
-<li><a href="#_deployment_automation_risk_reduction_etc_include_debate_on_golden_image">6.2. deployment (automation, risk reduction, etc.) (include debate on golden image ?)</a></li>
-<li><a href="#_log_centralisation">6.3. log centralisation</a></li>
-<li><a href="#_supervision">6.4. supervision</a></li>
+<li><a href="#_jdbc">5.1. JDBC</a></li>
+<li><a href="#_orm">5.2. ORM</a></li>
+<li><a href="#_no_sql">5.3. No Sql</a></li>
+<li><a href="#_brokers">5.4. Brokers</a></li>
+<li><a href="#_http_servers">5.5. HTTP Servers</a></li>
+<li><a href="#_http_clients">5.6. HTTP clients</a></li>
+<li><a href="#_moteurs_dindexation">5.7. Moteurs d&#8217;indexation</a></li>
+</ul>
+</li>
+<li><a href="#_api_design">6. API design</a></li>
+<li><a href="#_key_takeaway_points_on_production">7. Key takeaway points on Production</a>
+<ul class="sectlevel2">
+<li><a href="#_12_factors">7.1. 12 factors</a></li>
+<li><a href="#_deployment_automation_risk_reduction_etc_include_debate_on_golden_image">7.2. deployment (automation, risk reduction, etc.) (include debate on golden image ?)</a></li>
+<li><a href="#_log_centralisation">7.3. log centralisation</a></li>
+<li><a href="#_supervision">7.4. supervision</a></li>
 </ul>
 </li>
 </ul>
@@ -2135,45 +2146,184 @@ Cela se fait avec un flag sur la ligne de commande du démarrage de la JVM :</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_intégrations">4. Intégrations</h2>
+<h2 id="_di_aop">4. DI &amp; AOP</h2>
 <div class="sectionbody">
-<div class="paragraph">
-<p>blabla sur la non-exhaustivité</p>
-</div>
-<div class="paragraph">
-<p>dessin type archi hexa avec un panel des technologies "classiques"</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>sync (HTTP/JSON, web-socket, rsocket),</p>
-</li>
-<li>
-<p>async (Kafka, Rabbit, etc.)</p>
-</li>
-<li>
-<p>SQL (postgresql, mysql, oracle)</p>
-</li>
-<li>
-<p>no-sql (couch, cassandra, redis, hbase, neo4j, etc.)</p>
-</li>
-<li>
-<p>index (ES)</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Code sample ?</p>
-</div>
-<div class="paragraph">
-<p>&#8658; TP amqp<br>
-&#8658; TODO TP ES ?</p>
-</div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_api_design">5. API design</h2>
+<h2 id="_intégrations">5. Intégrations</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Il est impossible d’être exhaustif sur l’ensemble des technologies avec lesquelles il est possible de s’interfacer, mais voici néanmoins un petit panel représentatif.</p>
+</div>
+<div class="sect2">
+<h3 id="_jdbc">5.1. JDBC</h3>
+<div class="paragraph">
+<p><strong>J</strong>ava <strong>D</strong>ata<strong>B</strong>ase <strong>C</strong>onnectivity est l’API standard synchrone pour s’interfacer avec une base de donnée relationnelle (SQL).</p>
+</div>
+<div class="paragraph">
+<p>En tant qu’API, elle fourni l’abstraction <code>java.sql.Driver</code> qui est implémentée par les différents clients existants (Oracle, PostgreSQL, MariaDB, etc.).</p>
+</div>
+<div class="paragraph">
+<p>Cela permet d’utiliser le même code Java, quelle que soit la base (SQL) utilisée.</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<div class="title">⚠️</div>
+</td>
+<td class="content">
+Attention cependant, chaque base a son lot de spécificités en plus de la syntaxe SQL-92 et si elles sont utilisées, le code (SQL) n’est plus portable.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Exemple de code utilisant l’API JDBC :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">class</span> <span class="nc">JdbcDemo</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">ClassNotFoundException</span><span class="o">,</span> <span class="nc">SQLException</span> <span class="o">{</span>
+        <span class="nc">Class</span><span class="o">.</span><span class="na">forName</span><span class="o">(</span><span class="s">"postgresql.Driver"</span><span class="o">);</span> // <b class="conum">(1)</b>
+        <span class="nc">String</span> <span class="n">dbUrl</span> <span class="o">=</span> <span class="s">"jdbc:postgresql://localhost:5432"</span><span class="o">;</span>
+
+        <span class="k">try</span> <span class="o">(</span><span class="nc">Connection</span> <span class="n">connection</span> <span class="o">=</span> <span class="nc">DriverManager</span><span class="o">.</span><span class="na">getConnection</span><span class="o">(</span><span class="n">dbUrl</span><span class="o">,</span> <span class="s">"postgres"</span><span class="o">,</span> <span class="s">"example"</span><span class="o">);</span> // <b class="conum">(2)</b>
+             <span class="nc">PreparedStatement</span> <span class="n">stmt</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="na">prepareStatement</span><span class="o">(</span><span class="s">"SELECT name, age FROM person WHERE age &gt; ?"</span><span class="o">))</span> <span class="o">{</span> // <b class="conum">(3)</b>
+
+            <span class="n">stmt</span><span class="o">.</span><span class="na">setInt</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">28</span><span class="o">);</span> // <b class="conum">(4)</b>
+
+            <span class="nc">ResultSet</span> <span class="n">rs</span> <span class="o">=</span> <span class="n">stmt</span><span class="o">.</span><span class="na">executeQuery</span><span class="o">();</span> // <b class="conum">(5)</b>
+
+            <span class="k">while</span> <span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">next</span><span class="o">())</span> <span class="o">{</span> // <b class="conum">(6)</b>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">+</span> <span class="s">" :  "</span> <span class="o">+</span> <span class="n">rs</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="mi">2</span><span class="o">));</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Charge le Driver qui va s’enregistrer auprès du <code>DriverManager</code>, si la classe <code>postgresql.Driver</code> n’est pas présente dans le <em>classpath</em>, une exception sera levée</p>
+</li>
+<li>
+<p>Ouverture d’une connection vers la base de donnée (en utilisant <em>login</em> et <em>password</em>). Avec cette syntaxe, appelée <em>try-with-resources</em>, la connection sera automatiquement fermée, demande pour le <code>PreparedStatement</code> à la ligne d’après</p>
+</li>
+<li>
+<p>Création d’un <code>PreparedStatement</code> qui permet de variabiliser la requête SQL avec des paramètres qui seront échappés par l’API (et évitera la fameuse vulnérabilité d’injection SQL). Par ailleurs cette syntaxe va jusqu’à la base de donnée qui pourra réaliser des optimisations qui profiterons aux executions ultérieures, même avec des paramètres différents.</p>
+</li>
+<li>
+<p>Définition de la valeur du premier (et seul) paramètre</p>
+</li>
+<li>
+<p>Execution de la requête et récupération du résultat</p>
+</li>
+<li>
+<p>Le résultat étant conceptuellement un <code>Iterator</code>, on pourra lire la prochaine ligne tant que la méthode <code>next()</code> renvoie <code>true</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>L’API JDBC est pratique car elle abstrait du type de base utilisé et permet d’avoir un code portable (à la syntaxe SQL prêt).</p>
+</div>
+<div class="paragraph">
+<p>Cependant ce code est nécessaire à chaque requête, et il peut y avoir beaucoup de duplication si on utilise uniquement cette API.</p>
+</div>
+<div class="paragraph">
+<p><strong>Spring</strong> (entre autres) fourni des utilitaires au-dessus de l’API JDBC qui permettent d’avoir un code d’appel plus concis et de réaliser un mapping sommaire vers des objets Java.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">class</span> <span class="nc">JdbcTemplateDemo</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">NamedParameterJdbcTemplate</span> <span class="n">jdbcTemplate</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">NamedParameterJdbcTemplate</span><span class="o">(</span><span class="n">buildDataSource</span><span class="o">());</span> // <b class="conum">(1)</b>
+
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">Person</span><span class="o">&gt;</span> <span class="n">persons</span> <span class="o">=</span> <span class="n">jdbcTemplate</span><span class="o">.</span><span class="na">query</span><span class="o">(</span>
+            <span class="s">"SELECT name, age FROM person WHERE age &gt; :age"</span><span class="o">,</span> // <b class="conum">(2)</b>
+            <span class="nc">Map</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="s">"age"</span><span class="o">,</span> <span class="mi">28</span><span class="o">),</span>
+            <span class="o">(</span><span class="n">rs</span><span class="o">,</span> <span class="n">rowNum</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">Person</span><span class="o">(</span><span class="n">rs</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="s">"name"</span><span class="o">),</span> <span class="n">rs</span><span class="o">.</span><span class="na">getInt</span><span class="o">(</span><span class="s">"age"</span><span class="o">))</span> // <b class="conum">(3)</b>
+        <span class="o">);</span>
+
+        <span class="n">persons</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="n">record</span> <span class="nf">Person</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">,</span> <span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">DataSource</span> <span class="nf">buildDataSource</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">DriverManagerDataSource</span> <span class="n">dataSource</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">DriverManagerDataSource</span><span class="o">();</span>
+        <span class="n">dataSource</span><span class="o">.</span><span class="na">setDriverClassName</span><span class="o">(</span><span class="s">"postgresql.Driver"</span><span class="o">);</span>
+        <span class="n">dataSource</span><span class="o">.</span><span class="na">setUrl</span><span class="o">(</span><span class="s">"jdbc:postgresql://localhost:5432"</span><span class="o">);</span>
+        <span class="n">dataSource</span><span class="o">.</span><span class="na">setUsername</span><span class="o">(</span><span class="s">"postgres"</span><span class="o">);</span>
+        <span class="n">dataSource</span><span class="o">.</span><span class="na">setPassword</span><span class="o">(</span><span class="s">"example"</span><span class="o">);</span>
+
+        <span class="k">return</span> <span class="n">dataSource</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Dans une application plus complexe, cette même instance serait <em>injectée</em> dans le code des <em>Repositories</em> la nécessitant</p>
+</li>
+<li>
+<p>Ici les paramètres sont nommés pour éviter le <a href="https://connascence.io/position.html">couplage de position</a></p>
+</li>
+<li>
+<p>Il est possible de passer une fonction qui transforme une ligne en objet et celle-ci sera appelée en boucle pour construire la liste résultante</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_orm">5.2. ORM</h3>
+<div class="paragraph">
+<p>jooq, hibernate, spring-data</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_no_sql">5.3. No Sql</h3>
+<div class="paragraph">
+<p>blabla (couch, cassandra, redis, hbase, neo4j, etc.)</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_brokers">5.4. Brokers</h3>
+<div class="paragraph">
+<p>blabla (Kafka, Rabbit, etc.)</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_servers">5.5. HTTP Servers</h3>
+<div class="paragraph">
+<p>blabla Tomcat, Jetty, Undertow &#8594; spring-boot-starter-web<br>
+(HTTP/JSON, web-socket, rsocket),</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_clients">5.6. HTTP clients</h3>
+<div class="paragraph">
+<p>java, retrofit</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_moteurs_dindexation">5.7. Moteurs d&#8217;indexation</h3>
+<div class="paragraph">
+<p>blabla ES, solR &#8594; lucene</p>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_api_design">6. API design</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>cf 201</p>
@@ -2182,22 +2332,22 @@ Cela se fait avec un flag sur la ligne de commande du démarrage de la JVM :</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_key_takeaway_points_on_production">6. Key takeaway points on Production</h2>
+<h2 id="_key_takeaway_points_on_production">7. Key takeaway points on Production</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_12_factors">6.1. 12 factors</h3>
+<h3 id="_12_factors">7.1. 12 factors</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_deployment_automation_risk_reduction_etc_include_debate_on_golden_image">6.2. deployment (automation, risk reduction, etc.) (include debate on golden image ?)</h3>
+<h3 id="_deployment_automation_risk_reduction_etc_include_debate_on_golden_image">7.2. deployment (automation, risk reduction, etc.) (include debate on golden image ?)</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_log_centralisation">6.3. log centralisation</h3>
+<h3 id="_log_centralisation">7.3. log centralisation</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_supervision">6.4. supervision</h3>
+<h3 id="_supervision">7.4. supervision</h3>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
