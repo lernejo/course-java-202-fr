@@ -677,18 +677,18 @@ pre.rouge {
 <li><a href="#_runtime">2.2. Runtime</a></li>
 </ul>
 </li>
-<li><a href="#_gestion_des_logs">3. Gestion des logs</a>
+<li><a href="#_ioc_di_aop">3. IoC, DI &amp; AOP</a>
 <ul class="sectlevel2">
-<li><a href="#_bibliothèques_de_log">3.1. Bibliothèques de log</a></li>
-<li><a href="#_logs_gc">3.2. Logs GC</a></li>
-<li><a href="#_heap_dump">3.3. Heap Dump</a></li>
+<li><a href="#_ioc_inversion_de_contrôle">3.1. IoC - Inversion de Contrôle</a></li>
+<li><a href="#_di_injection_de_dépendance">3.2. DI - Injection de dépendance</a></li>
+<li><a href="#_aop">3.3. AOP</a></li>
 </ul>
 </li>
-<li><a href="#_ioc_di_aop">4. IoC, DI &amp; AOP</a>
+<li><a href="#_gestion_des_logs">4. Gestion des logs</a>
 <ul class="sectlevel2">
-<li><a href="#_ioc_inversion_de_contrôle">4.1. IoC - Inversion de Contrôle</a></li>
-<li><a href="#_di_injection_de_dépendance">4.2. DI - Injection de dépendance</a></li>
-<li><a href="#_aop">4.3. AOP</a></li>
+<li><a href="#_bibliothèques_de_log">4.1. Bibliothèques de log</a></li>
+<li><a href="#_logs_gc">4.2. Logs GC</a></li>
+<li><a href="#_heap_dump">4.3. Heap Dump</a></li>
 </ul>
 </li>
 <li><a href="#_intégrations">5. Intégrations</a>
@@ -697,11 +697,11 @@ pre.rouge {
 </ul>
 </li>
 <li><a href="#_api_design">6. API design</a></li>
-<li><a href="#_key_takeaway_points_on_production">7. Key takeaway points on Production</a>
+<li><a href="#_notions_sur_la_production">7. Notions sur la Production</a>
 <ul class="sectlevel2">
-<li><a href="#_12_factors">7.1. 12 factors</a></li>
-<li><a href="#_deployment_automation_risk_reduction_etc_include_debate_on_golden_image">7.2. deployment (automation, risk reduction, etc.) (include debate on golden image ?)</a></li>
-<li><a href="#_log_centralisation">7.3. log centralisation</a></li>
+<li><a href="#_12_factors_app">7.1. 12 factors App</a></li>
+<li><a href="#_a_propos_du_déploiement_en_production">7.2. A propos du déploiement (en Production)</a></li>
+<li><a href="#_centralisation_des_logs">7.3. Centralisation des logs</a></li>
 <li><a href="#_supervision">7.4. supervision</a></li>
 </ul>
 </li>
@@ -718,7 +718,7 @@ pre.rouge {
 <h2 id="_introduction">Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Le sujet de Java dans le monde de l’entreprise est lié à plusieurs caractéristiques :</p>
+<p>Le succès de Java dans le monde de l’entreprise est lié à plusieurs caractéristiques :</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1521,7 +1521,8 @@ Cela demande aux équipes fournissant des plugins de fournir des outils qui fonc
 <p><strong>JUnit-Vintage</strong> est un moteur d’exécution qui est compatible avec l’API de JUnit4.</p>
 </div>
 <div class="paragraph">
-<p><strong>JUnit-Jupiter</strong> est le moteur d’exécution d’une nouvelle API qui profite (entre autres) de points d’extension multiples et composables.</p>
+<p><strong>JUnit-Jupiter</strong> est le moteur d’exécution d’une nouvelle API qui profite (entre autres) de points d’extension multiples et composables.<br>
+:imagesdir: ./images</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -1798,7 +1799,218 @@ Ces beans seront ensuite disponibles pour injection dans le code applicatif.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_gestion_des_logs">3. Gestion des logs</h2>
+<h2 id="_ioc_di_aop">3. IoC, DI &amp; AOP</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_ioc_inversion_de_contrôle">3.1. IoC - Inversion de Contrôle</h3>
+<div class="paragraph">
+<p>L’inversion de contrôle est le fait de déléguer l’ordonnancement d’une application à un <em>framework</em>.</p>
+</div>
+<div class="paragraph">
+<p>L’idée générale est de créer de petites briques indépendantes et de laisser le <em>framework</em> les assembler et les appeler.</p>
+</div>
+<div class="paragraph">
+<p>D’une certaine manière, ce n’est plus le code du développeur de l’application qui dicte la façon dont sont instanciées les classes et dont sont déclenchées les fonctionnalités.</p>
+</div>
+<div class="paragraph">
+<p>En pratique, rien n’est magique, et les frameworks qui réalisent cette inversion de contrôle fonctionnent sur la base de conventions et de configurations, pour que le comportement de l’application soit déterministe et configurable.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_di_injection_de_dépendance">3.2. DI - Injection de dépendance</h3>
+<div class="paragraph">
+<p>L’injection de dépendance est un mécanisme qui permet à un framework de construire et d’initialiser des objets dépendants d’autres objets.</p>
+</div>
+<div class="paragraph">
+<p>Il s’agit de décrire <span class="underline">suffisament</span> d’informations à propos des paramètres qui sont nécessaires au bon fonctionnement d’un objet et le framework pourra créer l’instance en question.</p>
+</div>
+<div class="paragraph">
+<p>La manière la plus élégante est au travers d’un constructeur assignant des champs <code>private</code> et <code>final</code>.</p>
+</div>
+<div class="paragraph">
+<p>Par exemple en utilisant Quarkus-Arc :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="nd">@QuarkusMain</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Quarkus</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="nc">ExtensionApp</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span> // <b class="conum">(1)</b>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>À partir d’ici, on délègue au framework l’instanciation et l’exécution du code de l’application.<br>
+C’est ici que le contrôle sur l’exécution s’inverse.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExtensionApp</span> <span class="kd">implements</span> <span class="nc">QuarkusApplication</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">ExtensionService</span> <span class="n">extensionService</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">ExtensionApp</span><span class="o">(</span><span class="nd">@RestClient</span> <span class="nc">ExtensionService</span> <span class="n">extensionService</span><span class="o">)</span> <span class="o">{</span> // <b class="conum">(1)</b>
+        <span class="k">this</span><span class="o">.</span><span class="na">extensionService</span> <span class="o">=</span> <span class="n">extensionService</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">run</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">extensionService</span><span class="o">.</span><span class="na">getExtensionsById</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]).</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span> // <b class="conum">(2)</b>
+        <span class="nc">Quarkus</span><span class="o">.</span><span class="na">waitForExit</span><span class="o">();</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Quarkus-Arc va créer une instance de cette classe et y <em>injecter</em> (comprendre, passer en paramètre), une instance de type <code>ExtensionService</code> avec le <em>qualifier</em> <code>@RestClient</code>.<br>
+Les <em>qualifiers</em> sont un moyen de lever l’ambiguité quand il existe plusieurs implémentations d’un même type, ou quand on veut expliciter le rôle d’un composant.<br>
+Ici on déclare explicitement que le rôle de l’objet injecté est d’être un client HTTP.</p>
+</li>
+<li>
+<p>Cette méthode est appelée par le <em>framework</em>.<br>
+Si une méthode d’un objet peut être appelée, c’est que cet objet a été instancié (et donc injecté).<br>
+Cette méthode ne fait qu’afficher dans la sortie standard le retour de la méthode <code>getExtensionsById</code>.</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="nd">@RegisterRestClient</span><span class="o">(</span><span class="n">baseUri</span> <span class="o">=</span> <span class="s">"https://stage.code.quarkus.io/api"</span><span class="o">)</span> // <b class="conum">(1)</b>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ExtensionService</span> <span class="o">{</span>
+
+    <span class="nd">@GET</span>
+    <span class="nd">@Path</span><span class="o">(</span><span class="s">"/extensions"</span><span class="o">)</span>
+    <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">Extension</span><span class="o">&gt;</span> <span class="nf">getExtensionsById</span><span class="o">(</span><span class="nd">@QueryParam</span><span class="o">(</span><span class="s">"id"</span><span class="o">)</span> <span class="nc">String</span> <span class="n">id</span><span class="o">);</span>
+
+    <span class="n">record</span> <span class="nf">Extension</span> <span class="o">(</span>
+        <span class="nc">String</span> <span class="n">id</span><span class="o">,</span>
+        <span class="nc">String</span> <span class="n">name</span><span class="o">,</span>
+        <span class="nc">String</span> <span class="n">shortName</span><span class="o">,</span>
+        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">keywords</span>
+    <span class="o">){}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Annotation qui va déclencher la création d’un <em>proxy dynamique</em>, c’est-à-dire une implémentation de cette interface.<br>
+La création de ce proxy est gérée par la librairie <strong>quarkus-rest-client</strong>.<br>
+Il va intercepter les appels aux méthodes annotées (ou méta-annotées) avec <code>@HttpMethod</code> et se servir des autres annotations pour récupérer les informations nécessaires à créer les requêtes HTTP correspondantes.<br>
+Ici la requête sera <code>GET <a href="https://stage.code.quarkus.io/api/extensions?id={id}" class="bare">https://stage.code.quarkus.io/api/extensions?id={id}</a></code><br>
+Le corps de la réponse sera ensuite <em>désérialisé</em> grâce à la librairie <strong>quarkus-rest-client-jackson</strong>.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_aop">3.3. AOP</h3>
+<div class="paragraph">
+<p>La Programmation Orientée Aspect (AOP en anglais), est le fait de rajouter du comportement autour de méthodes existantes sans les modifier.</p>
+</div>
+<div class="paragraph">
+<p>Le fait de rajouter ces comportements que ce soit à la compilation ou au démarrage de l’application est appelé tissage (weaving).</p>
+</div>
+<div class="paragraph">
+<p>L’intérêt de l’AOP est de factoriser du code générique, comme :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>La collecte de statistique</p>
+</li>
+<li>
+<p>La génération de log</p>
+</li>
+<li>
+<p>L’établissement d’une <em>transaction</em></p>
+</li>
+<li>
+<p>Le re-essaie en cas d’erreur</p>
+</li>
+<li>
+<p>Etc.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Exemple de proxy dynamique simple :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TimeLoggerProxy</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="nc">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="nc">TimeLoggerProxy</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">create</span><span class="o">(</span><span class="no">T</span> <span class="n">object</span><span class="o">,</span> <span class="nc">Class</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">objectInterface</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">interfaceName</span> <span class="o">=</span> <span class="n">objectInterface</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">();</span>
+        <span class="nc">InvocationHandler</span> <span class="n">invocationHandler</span> <span class="o">=</span> <span class="o">(</span><span class="n">proxy</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="n">args</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="k">return</span> <span class="n">method</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+                <span class="kt">long</span> <span class="n">endTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+                <span class="n">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">interfaceName</span> <span class="o">+</span> <span class="s">"#"</span> <span class="o">+</span> <span class="n">method</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" took "</span> <span class="o">+</span> <span class="o">(</span><span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">)</span> <span class="o">+</span> <span class="s">" ms"</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+        <span class="k">return</span> <span class="o">(</span><span class="no">T</span><span class="o">)</span> <span class="nc">Proxy</span><span class="o">.</span><span class="na">newProxyInstance</span><span class="o">(</span><span class="nc">TimeLoggerProxy</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getClassLoader</span><span class="o">(),</span> <span class="k">new</span> <span class="nc">Class</span><span class="o">&lt;?&gt;[]</span> <span class="o">{</span> <span class="n">objectInterface</span> <span class="o">},</span> <span class="n">invocationHandler</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Ici une interface est nécessaire car la technologie de <em>proxy dynamique</em> fournie par la JDK ne fonctionne pas sur les classes.</p>
+</div>
+<div class="paragraph">
+<p>Il existe cependant plusieurs librairies qui permettent de dépasser cette limitation (Byte Buddy, CGlib, Javassist, etc.).</p>
+</div>
+<div class="paragraph">
+<p>Voici comment peut être décrit ce comportement avec Spring-AOP :</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="java"><span class="nd">@Aspect</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TimeLoggerAspect</span> <span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="nc">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="nc">TimeLoggerProxy</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+    <span class="nd">@Around</span><span class="o">(</span><span class="s">"@annotation(fr.lernejo.LogTime)"</span><span class="o">)</span> // <b class="conum">(1)</b>
+    <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">doBasicProfiling</span><span class="o">(</span><span class="nc">ProceedingJoinPoint</span> <span class="n">pjp</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Throwable</span> <span class="o">{</span>
+        <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+        <span class="nc">Signature</span> <span class="n">signature</span> <span class="o">=</span> <span class="n">pjp</span><span class="o">.</span><span class="na">getSignature</span><span class="o">();</span>
+        <span class="nc">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="na">getDeclaringType</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">();</span>
+        <span class="nc">String</span> <span class="n">methodName</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="n">pjp</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="kt">long</span> <span class="n">endTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+            <span class="n">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">className</span> <span class="o">+</span> <span class="s">"#"</span> <span class="o">+</span> <span class="n">methodName</span> <span class="o">+</span> <span class="s">" took "</span> <span class="o">+</span> <span class="o">(</span><span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">)</span> <span class="o">+</span> <span class="s">" ms"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Cet aspect sera appliqué sur toutes les méthodes annotées avec <code>@LogTime</code></p>
+</li>
+</ol>
+</div>
+<div style="page-break-after: always;"></div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_gestion_des_logs">4. Gestion des logs</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="title">Listing 2. Exemple de log peu utile</div>
@@ -1831,7 +2043,7 @@ Elles peuvent également être utilisées comme source de données pour créer d
 Les logs sont souvent la seule trace de la chronologie des évènements et sont d’autant plus importantes dans les applications à fort traffic, où résoudre le problème d’un utilisateur peut s’apparenter à chercher une aiguille dans une botte de foin.</p>
 </div>
 <div class="sect2">
-<h3 id="_bibliothèques_de_log">3.1. Bibliothèques de log</h3>
+<h3 id="_bibliothèques_de_log">4.1. Bibliothèques de log</h3>
 <div class="paragraph">
 <p>Côté applicatif, il existe de nombreuses bibliothèques pour écrire dans des fichiers de logs.</p>
 </div>
@@ -1914,7 +2126,7 @@ Par exemple : un utilisateur qui entre un mauvais mot de passe est un cas métie
 </table>
 </div>
 <div class="sect3">
-<h4 id="_architecture_de_slf4j">3.1.1. Architecture de SLF4J</h4>
+<h4 id="_architecture_de_slf4j">4.1.1. Architecture de SLF4J</h4>
 <div class="paragraph">
 <p>Le problème avec cette multiplicité de choix d’outil est que l’écosystème s’est construit de manière hétérogène.</p>
 </div>
@@ -1972,7 +2184,7 @@ Par exemple : un utilisateur qui entre un mauvais mot de passe est un cas métie
 </div>
 </div>
 <div class="sect3">
-<h4 id="_mdc_mapped_diagnostic_context">3.1.2. MDC (Mapped Diagnostic Context)</h4>
+<h4 id="_mdc_mapped_diagnostic_context">4.1.2. MDC (Mapped Diagnostic Context)</h4>
 <div class="paragraph">
 <p>Le <strong>MDC</strong> est un outil fourni par la plupart des bibliothèques de log qui permet de transporter de l’information dans un même thread.</p>
 </div>
@@ -2103,7 +2315,7 @@ Par exemple : un utilisateur qui entre un mauvais mot de passe est un cas métie
 </div>
 </div>
 <div class="sect2">
-<h3 id="_logs_gc">3.2. Logs GC</h3>
+<h3 id="_logs_gc">4.2. Logs GC</h3>
 <div class="paragraph">
 <p>Les logs applicatives sont une chose, mais quand un problème arrive en production, son origine ou ses symptômes peuvent être techniques.</p>
 </div>
@@ -2125,7 +2337,7 @@ Cela se fait avec un flag sur la ligne de commande du démarrage de la JVM :</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_heap_dump">3.3. Heap Dump</h3>
+<h3 id="_heap_dump">4.3. Heap Dump</h3>
 <div class="paragraph">
 <p>Quand la JVM s’arrête de manière non prévue, cela peut être à cause d’un problème de mémoire (<strong>O</strong>ut <strong>O</strong>f <strong>M</strong>emory error) et dans ce cas l’investigation peut se faire sur la base d’un <strong>Heap Dump</strong>.</p>
 </div>
@@ -2139,218 +2351,8 @@ Cela se fait avec un flag sur la ligne de commande du démarrage de la JVM :</p>
 <p><code>-XX:+HeapDumpOnOutOfMemoryError</code></p>
 </div>
 <div class="paragraph">
-<p>Par la suite un tel fichier peut être analysé avec des outils comme <strong>Eclipse MAT</strong> (gratuit) ou <strong>JProfiler</strong> (payant).</p>
-</div>
-<div style="page-break-after: always;"></div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_ioc_di_aop">4. IoC, DI &amp; AOP</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_ioc_inversion_de_contrôle">4.1. IoC - Inversion de Contrôle</h3>
-<div class="paragraph">
-<p>L’inversion de contrôle est le fait de déléguer l’ordonnancement d’une application à un <em>framework</em>.</p>
-</div>
-<div class="paragraph">
-<p>L’idée générale est de créer de petites briques indépendantes et de laisser le <em>framework</em> les assembler et les appeler.</p>
-</div>
-<div class="paragraph">
-<p>D’une certaine manière, ce n’est plus le code du développeur de l’application qui dicte la façon dont sont instanciées les classes et dont sont déclenchées les fonctionnalités.</p>
-</div>
-<div class="paragraph">
-<p>En pratique, rien n’est magique, et les frameworks qui réalisent cette inversion de contrôle fonctionnent sur la base de conventions et de configurations, pour que le comportement de l’application soit déterministe et configurable.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_di_injection_de_dépendance">4.2. DI - Injection de dépendance</h3>
-<div class="paragraph">
-<p>L’injection de dépendance est un mécanisme qui permet à un framework de construire et d’initialiser des objets dépendants d’autres objets.</p>
-</div>
-<div class="paragraph">
-<p>Il s’agit de décrire <span class="underline">suffisament</span> d’informations à propos des paramètres qui sont nécessaires au bon fonctionnement d’un objet et le framework pourra créer l’instance en question.</p>
-</div>
-<div class="paragraph">
-<p>La manière la plus élégante est au travers d’un constructeur assignant des champs <code>private</code> et <code>final</code>.</p>
-</div>
-<div class="paragraph">
-<p>Par exemple en utilisant Quarkus-Arc :</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="nd">@QuarkusMain</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
-
-    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-        <span class="nc">Quarkus</span><span class="o">.</span><span class="na">run</span><span class="o">(</span><span class="nc">ExtensionApp</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span> // <b class="conum">(1)</b>
-    <span class="o">}</span>
-<span class="o">}</span></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>À partir d’ici, on délègue au framework l’instanciation et l’exécution du code de l’application.<br>
-C’est ici que le contrôle sur l’exécution s’inverse.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ExtensionApp</span> <span class="kd">implements</span> <span class="nc">QuarkusApplication</span> <span class="o">{</span>
-
-    <span class="kd">private</span> <span class="kd">final</span> <span class="nc">ExtensionService</span> <span class="n">extensionService</span><span class="o">;</span>
-
-    <span class="kd">public</span> <span class="nf">ExtensionApp</span><span class="o">(</span><span class="nd">@RestClient</span> <span class="nc">ExtensionService</span> <span class="n">extensionService</span><span class="o">)</span> <span class="o">{</span> // <b class="conum">(1)</b>
-        <span class="k">this</span><span class="o">.</span><span class="na">extensionService</span> <span class="o">=</span> <span class="n">extensionService</span><span class="o">;</span>
-    <span class="o">}</span>
-
-    <span class="nd">@Override</span>
-    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">run</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
-        <span class="n">extensionService</span><span class="o">.</span><span class="na">getExtensionsById</span><span class="o">(</span><span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">]).</span><span class="na">forEach</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">::</span><span class="n">println</span><span class="o">);</span> // <b class="conum">(2)</b>
-        <span class="nc">Quarkus</span><span class="o">.</span><span class="na">waitForExit</span><span class="o">();</span>
-        <span class="k">return</span> <span class="mi">0</span><span class="o">;</span>
-    <span class="o">}</span>
-<span class="o">}</span></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Quarkus-Arc va créer une instance de cette classe et y <em>injecter</em> (comprendre, passer en paramètre), une instance de type <code>ExtensionService</code> avec le <em>qualifier</em> <code>@RestClient</code>.<br>
-Les <em>qualifiers</em> sont un moyen de lever l’ambiguité quand il existe plusieurs implémentations d’un même type, ou quand on veut expliciter le rôle d’un composant.<br>
-Ici on déclare explicitement que le rôle de l’objet injecté est d’être un client HTTP.</p>
-</li>
-<li>
-<p>Cette méthode est appelée par le <em>framework</em>.<br>
-Si une méthode d’un objet peut être appelée, c’est que cet objet a été instancié (et donc injecté).<br>
-Cette méthode ne fait qu’afficher dans la sortie standard le retour de la méthode <code>getExtensionsById</code>.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="nd">@RegisterRestClient</span><span class="o">(</span><span class="n">baseUri</span> <span class="o">=</span> <span class="s">"https://stage.code.quarkus.io/api"</span><span class="o">)</span> // <b class="conum">(1)</b>
-<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ExtensionService</span> <span class="o">{</span>
-
-    <span class="nd">@GET</span>
-    <span class="nd">@Path</span><span class="o">(</span><span class="s">"/extensions"</span><span class="o">)</span>
-    <span class="nc">Set</span><span class="o">&lt;</span><span class="nc">Extension</span><span class="o">&gt;</span> <span class="nf">getExtensionsById</span><span class="o">(</span><span class="nd">@QueryParam</span><span class="o">(</span><span class="s">"id"</span><span class="o">)</span> <span class="nc">String</span> <span class="n">id</span><span class="o">);</span>
-
-    <span class="n">record</span> <span class="nf">Extension</span> <span class="o">(</span>
-        <span class="nc">String</span> <span class="n">id</span><span class="o">,</span>
-        <span class="nc">String</span> <span class="n">name</span><span class="o">,</span>
-        <span class="nc">String</span> <span class="n">shortName</span><span class="o">,</span>
-        <span class="nc">List</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">keywords</span>
-    <span class="o">){}</span>
-<span class="o">}</span></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Annotation qui va déclencher la création d’un <em>proxy dynamique</em>, c’est-à-dire une implémentation de cette interface.<br>
-La création de ce proxy est gérée par la librairie <strong>quarkus-rest-client</strong>.<br>
-Il va intercepter les appels aux méthodes annotées (ou méta-annotées) avec <code>@HttpMethod</code> et se servir des autres annotations pour récupérer les informations nécessaires à créer les requêtes HTTP correspondantes.<br>
-Ici la requête sera <code>GET <a href="https://stage.code.quarkus.io/api/extensions?id={id}" class="bare">https://stage.code.quarkus.io/api/extensions?id={id}</a></code><br>
-Le corps de la réponse sera ensuite <em>désérialisé</em> grâce à la librairie <strong>quarkus-rest-client-jackson</strong>.</p>
-</li>
-</ol>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_aop">4.3. AOP</h3>
-<div class="paragraph">
-<p>La Programmation Orientée Aspect (AOP en anglais), est le fait de rajouter du comportement autour de méthodes existantes sans les modifier.</p>
-</div>
-<div class="paragraph">
-<p>Le fait de rajouter ces comportements que ce soit à la compilation ou au démarrage de l’application est appelé tissage (weaving).</p>
-</div>
-<div class="paragraph">
-<p>L’intérêt de l’AOP est de factoriser du code générique, comme :</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>La collecte de statistique</p>
-</li>
-<li>
-<p>La génération de log</p>
-</li>
-<li>
-<p>L’établissement d’une <em>transaction</em></p>
-</li>
-<li>
-<p>Le re-essaie en cas d’erreur</p>
-</li>
-<li>
-<p>Etc.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Exemple de proxy dynamique simple :</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TimeLoggerProxy</span> <span class="o">{</span>
-    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="nc">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="nc">TimeLoggerProxy</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-
-    <span class="kd">public</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">create</span><span class="o">(</span><span class="no">T</span> <span class="n">object</span><span class="o">,</span> <span class="nc">Class</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">objectInterface</span><span class="o">)</span> <span class="o">{</span>
-        <span class="nc">String</span> <span class="n">interfaceName</span> <span class="o">=</span> <span class="n">objectInterface</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">();</span>
-        <span class="nc">InvocationHandler</span> <span class="n">invocationHandler</span> <span class="o">=</span> <span class="o">(</span><span class="n">proxy</span><span class="o">,</span> <span class="n">method</span><span class="o">,</span> <span class="n">args</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="o">{</span>
-            <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
-            <span class="k">try</span> <span class="o">{</span>
-                <span class="k">return</span> <span class="n">method</span><span class="o">.</span><span class="na">invoke</span><span class="o">(</span><span class="n">object</span><span class="o">,</span> <span class="n">args</span><span class="o">);</span>
-            <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
-                <span class="kt">long</span> <span class="n">endTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
-                <span class="n">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">interfaceName</span> <span class="o">+</span> <span class="s">"#"</span> <span class="o">+</span> <span class="n">method</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" took "</span> <span class="o">+</span> <span class="o">(</span><span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">)</span> <span class="o">+</span> <span class="s">" ms"</span><span class="o">);</span>
-            <span class="o">}</span>
-        <span class="o">};</span>
-        <span class="k">return</span> <span class="o">(</span><span class="no">T</span><span class="o">)</span> <span class="nc">Proxy</span><span class="o">.</span><span class="na">newProxyInstance</span><span class="o">(</span><span class="nc">TimeLoggerProxy</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getClassLoader</span><span class="o">(),</span> <span class="k">new</span> <span class="nc">Class</span><span class="o">&lt;?&gt;[]</span> <span class="o">{</span> <span class="n">objectInterface</span> <span class="o">},</span> <span class="n">invocationHandler</span><span class="o">);</span>
-    <span class="o">}</span>
-<span class="o">}</span></code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Ici une interface est nécessaire car la technologie de <em>proxy dynamique</em> fournie par la JDK ne fonctionne pas sur les classes.</p>
-</div>
-<div class="paragraph">
-<p>Il existe cependant plusieurs librairies qui permettent de dépasser cette limitation (Byte Buddy, CGlib, Javassist, etc.).</p>
-</div>
-<div class="paragraph">
-<p>Voici comment peut être décrit ce comportement avec Spring-AOP :</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="rouge highlight"><code data-lang="java"><span class="nd">@Aspect</span>
-<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TimeLoggerAspect</span> <span class="o">{</span>
-
-    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">Logger</span> <span class="n">logger</span> <span class="o">=</span> <span class="nc">LoggerFactory</span><span class="o">.</span><span class="na">getLogger</span><span class="o">(</span><span class="nc">TimeLoggerProxy</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
-
-    <span class="nd">@Around</span><span class="o">(</span><span class="s">"@annotation(fr.lernejo.LogTime)"</span><span class="o">)</span> // <b class="conum">(1)</b>
-    <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">doBasicProfiling</span><span class="o">(</span><span class="nc">ProceedingJoinPoint</span> <span class="n">pjp</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">Throwable</span> <span class="o">{</span>
-        <span class="kt">long</span> <span class="n">startTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
-        <span class="nc">Signature</span> <span class="n">signature</span> <span class="o">=</span> <span class="n">pjp</span><span class="o">.</span><span class="na">getSignature</span><span class="o">();</span>
-        <span class="nc">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="na">getDeclaringType</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">();</span>
-        <span class="nc">String</span> <span class="n">methodName</span> <span class="o">=</span> <span class="n">signature</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
-        <span class="k">try</span> <span class="o">{</span>
-            <span class="k">return</span> <span class="n">pjp</span><span class="o">.</span><span class="na">proceed</span><span class="o">();</span>
-        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
-            <span class="kt">long</span> <span class="n">endTime</span> <span class="o">=</span> <span class="nc">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
-            <span class="n">logger</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">className</span> <span class="o">+</span> <span class="s">"#"</span> <span class="o">+</span> <span class="n">methodName</span> <span class="o">+</span> <span class="s">" took "</span> <span class="o">+</span> <span class="o">(</span><span class="n">endTime</span> <span class="o">-</span> <span class="n">startTime</span><span class="o">)</span> <span class="o">+</span> <span class="s">" ms"</span><span class="o">);</span>
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">}</span></code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Cet aspect sera appliqué sur toutes les méthodes annotées avec <code>@LogTime</code></p>
-</li>
-</ol>
+<p>Par la suite un tel fichier peut être analysé avec des outils comme <strong>Eclipse MAT</strong> (gratuit) ou <strong>JProfiler</strong> (payant).<br>
+:imagesdir: ./images</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
@@ -2540,28 +2542,256 @@ Attention cependant, chaque base a son lot de spécificités en plus de la synta
 <h2 id="_api_design">6. API design</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>cf 201</p>
+<p>Les APIs exposées à l’extérieur d’un système peuvent être documentées de différentes manières :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Contract First</strong> : on écrit le contrat dans un format donné (RAML, WSDL, etc.), et ensuite on écrit ou on <em>génère</em> le code correspondant.<br>
+À noter que si le code est généré, il y a toujours une seconde étape de "raccordement" au code métier.</p>
+</li>
+<li>
+<p><strong>Code First</strong> : on écrit le code technique permettant d’exposer l’API.<br>
+Ce code peut être enrichi de métadonnées sur l’utilisation de l’API (description, signification des différents codes d’erreur, etc.).<br>
+La documentation est ensuite générée sur la base de ce code, notamment avec l’initiative <strong>OpenAPI</strong> (anciennement Swagger) et les nombreux outils de son écosystème.<br>
+Dans le cas où ce mécanisme est inclus dans la construction du projet, la documentation évolue à chaque changement de code.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>L’approche <strong>code first</strong> est la plus pérenne, car elle évite qu’un décalage entre la documentation et le code s’introduise au fil du temps.</p>
+</div>
+<div class="paragraph">
+<p>Il faut cependant être vigilant sur les modifications d’une API et à ce que cela va impliquer pour les clients de cette API.</p>
+</div>
+<div class="paragraph">
+<p>Certains changements sont sans conséquences</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Ajouter un champ dans une réponse</p>
+</li>
+<li>
+<p>Supprimer un champ optionnel dans une requête</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>&#8594; <em>Qui peut le plus, peut le moins</em>.</p>
+</div>
+<div class="paragraph">
+<p>D’autres changements, comme</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Supprimer un champ dans une réponse</p>
+</li>
+<li>
+<p>Ajouter un champ obligatoire dans une requête</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Vont entrainer des malfonctions dans la communication, et nécessitent d’être abordés différemment.</p>
+</div>
+<div class="paragraph">
+<p>Dans le cas où ce second genre de modifications est nécessaire, il est possible de proposer une nouvelle version de l’API tout en continuant de servir la première version.</p>
+</div>
+<div class="paragraph">
+<p>Ainsi les clients ont le temps de faire le changement de code nécessaire de leur côté pour utiliser la nouvelle version.<br>
+Quand tous les clients ont opéré ces changements, le code de la première version peut êre supprimé.</p>
+</div>
+<div class="paragraph">
+<p>Ce faisant, on introduit un <strong><em>découplage</em></strong> entre les systèmes en permettant que chacun fasse les changements à son rythme.</p>
 </div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_key_takeaway_points_on_production">7. Key takeaway points on Production</h2>
+<h2 id="_notions_sur_la_production">7. Notions sur la Production</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_12_factors">7.1. 12 factors</h3>
-
+<h3 id="_12_factors_app">7.1. 12 factors App</h3>
+<div class="paragraph">
+<p>Il s’agit de 12 principes réalisés comme retour d’expérience par les équipes de <strong>Heroku</strong>, une plateforme de déploiement "dans le cloud".</p>
+</div>
+<div class="paragraph">
+<p>La référence complète peut être trouvée ici : <a href="https://12factor.net/" class="bare">https://12factor.net/</a></p>
+</div>
+<div class="paragraph">
+<p>Ces douze principes sont des bonnes pratiques, applicables du domaine du développeur à celui de l’administrateur système.</p>
+</div>
+<div class="paragraph">
+<p>Leur mise en place permet de simplifier la gestion de l’infrastructure.</p>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_deployment_automation_risk_reduction_etc_include_debate_on_golden_image">7.2. deployment (automation, risk reduction, etc.) (include debate on golden image ?)</h3>
-
+<h3 id="_a_propos_du_déploiement_en_production">7.2. A propos du déploiement (en Production)</h3>
+<div class="paragraph">
+<p>En 2019, l’équipe DORA (<strong>D</strong>ev<strong>O</strong>ps <strong>R</strong>esearch and <strong>A</strong>ssessment) de <strong>Google</strong> produit un rapport d’analyse de 6 ans sur le fonctionnement des équipes informatiques dans de nombreuses entreprises.</p>
+</div>
+<div class="paragraph">
+<p>Ce rapport établit 4 métriques qui permettent de mesurer la performance des équipes de développement :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>La fréquence de déploiement en <em>production</em></p>
+</li>
+<li>
+<p>Le délai entre un commit et le déploiement en <em>production</em> de celui-ci</p>
+</li>
+<li>
+<p>Le pourcentage des déploiements entrainant un problème en <em>production</em></p>
+</li>
+<li>
+<p>Temps nécessaire pour restaurer le service après un problème en <em>production</em></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Source : <a href="https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance" class="bare">https://cloud.google.com/blog/products/devops-sre/using-the-four-keys-to-measure-your-devops-performance</a></p>
+</div>
+<div class="paragraph">
+<p>Ces conclusions sont assez logiques quand on regarde ça sous l’angle du <span class="underline">risque</span>.</p>
+</div>
+<div class="paragraph">
+<p>Changer quelque chose dans un système informatique inclus toujours un risque de problème.</p>
+</div>
+<div class="paragraph">
+<p>Plus le changement est gros, plus le risque qu’il y ai un problème est élevé car le volume de code changé est plus important.</p>
+</div>
+<div class="paragraph">
+<p>Ainsi, faire des versions (et des déploiements) régulièrement diminue ce risque, car chaque changement est plus petit.</p>
+</div>
+<div class="paragraph">
+<p>Par ailleurs, la maturité et la technologie qui permettent de déployer régulièrement sont aussi au service de la correction rapide d’une anomalie en <em>production</em>.</p>
+</div>
+<div class="paragraph">
+<p>Concrètement atteindre ces objectifs, c’est mettre en place une industrialisation des processus, par l’intermédiaire des outils tels que :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>SCM : gestionnaire de code source (Git, SVN, CVS, etc.)</p>
+</li>
+<li>
+<p>CI/CD : intégration et déploiement continu (Jenkins, GitLab CI, GitHub Actions, Circle CI, etc.)</p>
+</li>
+<li>
+<p>Supervision : collecte et suivi des logs et métriques applicatives (ELK, Micrometer, Prometheus, Warp10, Grafana, Datadog, etc.)</p>
+</li>
+<li>
+<p>Etc.</p>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_log_centralisation">7.3. log centralisation</h3>
-
+<h3 id="_centralisation_des_logs">7.3. Centralisation des logs</h3>
+<div class="paragraph">
+<p>Afin de pouvoir exploiter au mieux les logs, il est important de les centraliser.<br>
+C’est-à-dire les envoyer dans un même endroit, que ce soit dans un :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Système de fichier, sur lequel on pourra utiliser la commande <code>grep</code> par exemple</p>
+</li>
+<li>
+<p><em>ElasticSearch</em>, <em>Loki</em> ou équivalent, sur lequel on pourra faire des requêtes</p>
+</li>
+<li>
+<p>SAAS dont c’est le coeur de métier (<em>Datadog</em>, <em>Logz.io</em>, etc.)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Les logs doivent être claires et apporter le maximum d’information possible.<br>
+Pour cela on évite les logs visuelles ou de <em>debug</em>.</p>
+</div>
+<div class="sect3">
+<h4 id="_la_stack_elastic">7.3.1. La stack Elastic</h4>
+<div class="paragraph">
+<p>Il existe plusieurs solutions de centralisation <em>on premise</em>, la plus connue étant la suite proposée par <em>Elastic</em> : <strong>ELK</strong> (<strong>E</strong>lasticSearch, <strong>L</strong>ogstash, <strong>K</strong>ibana).<br>
+Aujourd’hui un peu datée, des composants peuvent être remplacés, la chaîne peut être plus complexe pour mieux gérer le dimensionnement, mais la structure reste néanmoins identique.</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/images/elk_stack.png" alt="elk stack">
+</div>
+</div>
+<div class="paragraph">
+<p>La brique <strong>Logstash</strong> permet de découper les lignes de logs en documents structurés (JSON) pour ensuite les envoyer à <strong>ElasticSearch</strong>.<br>
+<strong>ElasticSearch</strong> indexe les documents reçus et propose une API de recherche utilisée par <strong>Kibana</strong>.<br>
+<strong>Kibana</strong> fourni une interface Web qui satisfait aussi bien à la recherche exploratoire qu’à la création de tableaux de bord pour suivre l’état du système.</p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_supervision">7.4. supervision</h3>
+<div class="paragraph">
+<p>La collecte de logs et de métriques forme la base de la <em>supervision</em> d’un système.</p>
+</div>
+<div class="paragraph">
+<p>Sur cette base, il est nécessaire d’ajouter des composants pour transformer ces données brutes en :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Alertes, dans le cas où un comportement anormal est détecté</p>
+</li>
+<li>
+<p>Tableaux de bord, pour investiguer un comportement anormal, trouver des correlations et converger vers l’origine du problème.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>La supervision, c’est l’outillage qui permet de suivre l’état d’un système, de comprendre son fonctionnement, et même de prévoir son utilisation.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Conseil</div>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>Il faut néanmoins faire preuve de retenue et ne garder que les informations qui ont de la valeur, au risque de se perdre dans trop d’information et de devoir stocker d’énormes quantités d’informations inutiles.</p>
+</div>
+<div class="paragraph">
+<p>Le résultat doit être construit à l’aide de ces trois questions :</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Quels sont les comportements du système que l’on souhaite identifier comme problématiques (service indisponible, utilisation anormale, etc.) ?</p>
+</li>
+<li>
+<p>Quels comportements du système souhaite-t-on comprendre (coup de bélier, interruption de services externes, etc.) ?</p>
+</li>
+<li>
+<p>Où placer les sondes qui remonterons les informations nécessaires ?</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Que ce soit des outils d’indexation de document, de stockage de séries temporelles ou des bases de données, tous sont des sources d’information pour la constitution de tableaux de bord et d’alerte.</p>
+</div>
+<div class="paragraph">
+<p>L’outil open-source le plus complet aujourd’hui pour aggréger ces sources est Grafana</p>
+</div>
+<div class="imageblock text-center">
+<div class="content">
+<img src="https://raw.githubusercontent.com/lernejo/course-java-201-fr/main/images/grafana.png" alt="grafana">
+</div>
+</div>
 <div style="page-break-after: always;"></div>
 </div>
 </div>
