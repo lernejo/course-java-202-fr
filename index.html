@@ -702,7 +702,7 @@ pre.rouge {
 <li><a href="#_12_factors_app">7.1. 12 factors App</a></li>
 <li><a href="#_a_propos_du_déploiement_en_production">7.2. A propos du déploiement (en Production)</a></li>
 <li><a href="#_centralisation_des_logs">7.3. Centralisation des logs</a></li>
-<li><a href="#_supervision">7.4. supervision</a></li>
+<li><a href="#_supervision">7.4. Supervision</a></li>
 </ul>
 </li>
 </ul>
@@ -1544,7 +1544,7 @@ Cela demande aux équipes fournissant des plugins de fournir des outils qui fonc
 <p>Des conventions implicites, comme l’existence sur un objet d’un constructeur avec des paramètres non-ambigües</p>
 </li>
 <li>
-<p>Une déclaration explicite en utilisant l’API fournies par ceux-ci (annotations, interfaces, fichiers de configuration)</p>
+<p>Une déclaration explicite en utilisant l’API fournie par ceux-ci (annotations, interfaces, fichiers de configuration)</p>
 </li>
 </ul>
 </div>
@@ -1579,7 +1579,7 @@ Celle-ci permet d’afficher des erreurs au moment de la compilation, mais aussi
 <p>De ne travailler que sur du code source (donc pas sur des dépendances)</p>
 </li>
 <li>
-<p>Que le déclenchement des plugins se fait uniquement sur la base d’annotation.</p>
+<p>Que le déclenchement des plugins se fait uniquement sur la base d’annotations.</p>
 </li>
 </ul>
 </div>
@@ -1704,7 +1704,7 @@ Celle-ci permet d’afficher des erreurs au moment de la compilation, mais aussi
 <p>Boucle sur les éléments contenus dans une classe : champs, méthodes, etc.</p>
 </li>
 <li>
-<p>Envoie du message d’erreur au compilateur, associé à l’élément <code>ee</code> posant problème, ainsi le compilateur pourra afficher des éléments de contexte comme le fichier incriminé et la ligne de l’erreur</p>
+<p>Envoi du message d’erreur au compilateur, associé à l’élément <code>ee</code> posant problème, ainsi le compilateur pourra afficher des éléments de contexte comme le fichier incriminé et la ligne de l’erreur</p>
 </li>
 </ol>
 </div>
@@ -1926,7 +1926,7 @@ Le corps de la réponse sera ensuite <em>désérialisé</em> grâce à la librai
 <div class="ulist">
 <ul>
 <li>
-<p>La collecte de statistique</p>
+<p>La collecte de statistiques</p>
 </li>
 <li>
 <p>La génération de log</p>
@@ -1935,7 +1935,7 @@ Le corps de la réponse sera ensuite <em>désérialisé</em> grâce à la librai
 <p>L’établissement d’une <em>transaction</em></p>
 </li>
 <li>
-<p>Le re-essaie en cas d’erreur</p>
+<p>Le re-essai en cas d’erreur</p>
 </li>
 <li>
 <p>Etc.</p>
@@ -2362,7 +2362,7 @@ Cela se fait avec un flag sur la ligne de commande du démarrage de la JVM :</p>
 <h2 id="_intégrations">5. Intégrations</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>L’écosystème Java s’est grandement développé au fils des années et il est aujourd’hui d’une grande richesse.</p>
+<p>L’écosystème Java s’est grandement développé au fil des années et il est aujourd’hui d’une grande richesse.</p>
 </div>
 <div class="paragraph">
 <p>Pour chaque technologie ou protocole, il existe presque certainement une librairie, ou plusieurs</p>
@@ -2465,7 +2465,7 @@ Attention cependant, chaque base a son lot de spécificités en plus de la synta
 <p>Ouverture d’une connection vers la base de donnée (en utilisant <em>login</em> et <em>password</em>). Avec cette syntaxe, appelée <em>try-with-resources</em>, la connection sera automatiquement fermée, demande pour le <code>PreparedStatement</code> à la ligne d’après</p>
 </li>
 <li>
-<p>Création d’un <code>PreparedStatement</code> qui permet de variabiliser la requête SQL avec des paramètres qui seront échappés par l’API (et évitera la fameuse vulnérabilité d’injection SQL). Par ailleurs cette syntaxe va jusqu’à la base de donnée qui pourra réaliser des optimisations qui profiterons aux executions ultérieures, même avec des paramètres différents.</p>
+<p>Création d’un <code>PreparedStatement</code> qui permet de variabiliser la requête SQL avec des paramètres qui seront échappés par l’API (et évitera la fameuse vulnérabilité d’injection SQL). Par ailleurs cette syntaxe va jusqu’à la base de données qui pourra réaliser des optimisations qui profiteront aux executions ultérieures, même avec des paramètres différents.</p>
 </li>
 <li>
 <p>Définition de la valeur du premier (et seul) paramètre</p>
@@ -2479,13 +2479,13 @@ Attention cependant, chaque base a son lot de spécificités en plus de la synta
 </ol>
 </div>
 <div class="paragraph">
-<p>L’API JDBC est pratique car elle abstrait du type de base utilisé et permet d’avoir un code portable (à la syntaxe SQL prêt).</p>
+<p>L’API JDBC est pratique car elle abstrait du type de base utilisé et permet d’avoir un code portable (à la syntaxe SQL près).</p>
 </div>
 <div class="paragraph">
 <p>Cependant ce code est nécessaire à chaque requête, et il peut y avoir beaucoup de duplication si on utilise uniquement cette API.</p>
 </div>
 <div class="paragraph">
-<p><strong>Spring</strong> (entre autres) fourni des utilitaires au-dessus de l’API JDBC qui permettent d’avoir un code d’appel plus concis et de réaliser un mapping sommaire vers des objets Java.</p>
+<p><strong>Spring</strong> (entre autres) fournit des utilitaires au-dessus de l’API JDBC qui permettent d’avoir un code d’appel plus concis et de réaliser un mapping sommaire vers des objets Java.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -2731,7 +2731,7 @@ Aujourd’hui un peu datée, des composants peuvent être remplacés, la chaîne
 </div>
 </div>
 <div class="sect2">
-<h3 id="_supervision">7.4. supervision</h3>
+<h3 id="_supervision">7.4. Supervision</h3>
 <div class="paragraph">
 <p>La collecte de logs et de métriques forme la base de la <em>supervision</em> d’un système.</p>
 </div>
